@@ -1,3 +1,4 @@
 export class CreateCatDto {
-  name: string;
+	name: string
+	color: "wight" | "black"
 }
