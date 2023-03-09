@@ -3,15 +3,21 @@ import {
 	Controller,
 	Delete,
 	Get,
+	NotFoundException,
 	Param,
+	ParseIntPipe,
 	Post,
 	Put,
 	Query,
+	UseGuards,
+	ValidationPipe,
 } from '@nestjs/common'
+import { BeltGuard } from 'src/belt/belt.guard'
 import { CatsService } from './cats.service'
 import { CreateCatDto, UpdateCatDto } from './dto'
 
 @Controller('cats')
+@UseGuards(BeltGuard)
 export class CatsController {
 	constructor(private readonly catsService: CatsService) { }
 
@@ -21,12 +27,16 @@ export class CatsController {
 	}
 
 	@Get(':id')
-	getCat(@Param('id') id: string) {
-		return this.catsService.getCat(+id)
+	getCat(@Param('id', ParseIntPipe) id: number) {
+		try {
+			return this.catsService.getCat(id)
+		} catch (error) {
+			throw new NotFoundException()
+		}
 	}
 
 	@Post()
-	createCat(@Body() createCatDto: CreateCatDto) {
+	createCat(@Body(new ValidationPipe()) createCatDto: CreateCatDto) {
 		return this.catsService.createCat(createCatDto)
 	}
 
